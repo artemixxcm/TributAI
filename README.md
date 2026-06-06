@@ -18,25 +18,15 @@ O TaxAdvisorAI é um assistente que responde perguntas sobre a reforma em lingua
 
 **Guardrails declarados:** o agente tem regras explícitas de comportamento. Quando a alíquota ainda não foi definida em lei, ele diz isso sem chutar número. Quando a pergunta está fora do escopo, redireciona em vez de tentar responder de qualquer jeito. Essas regras ficam num arquivo de texto separado do código, editável por qualquer pessoa.
 
-**Base de conhecimento modular:** o conteúdo sobre a reforma é organizado em arquivos `.md` por tema. Para atualizar o agente conforme novas leis complementares saem, basta editar o arquivo certo. Sem reindexação, sem banco vetorial, sem mexer em código.
+**Base de conhecimento modular:** O conteúdo sobre a reforma é organizado em arquivos `.md` por tema. Para atualizar o agente conforme novas leis complementares são publicadas, basta atualizar os arquivos correspondentes da base de conhecimento.
 
 ---
 
-## Visão de produto
+<h2 align="center">Interface do TaxAdvisorAI</h2>
 
-O TaxAdvisorAI foi construído como protótipo educativo, mas a arquitetura aponta pra um modelo SaaS viável:
-
-| Camada | Hoje (protótipo) | Visão SaaS |
-|--------|-----------------|------------|
-| Interface | Gradio local | Web app multi-tenant com auth |
-| Conhecimento | Arquivos `.md` locais | Base por cliente (escritório contábil, empresa, setor) |
-| Guardrails | Arquivo único | Configuração por plano/perfil de uso |
-| LLM | GPT-4o-mini via API | Roteamento por complexidade da pergunta |
-| Custo | Frações de centavo por conversa | Precificado por volume de consultas |
-
-A ideia central é separar comportamento (guardrails) de conteúdo (knowledge) de código  é o que torna isso escalável. Um escritório de contabilidade poderia ter sua própria base de conhecimento sobre os clientes dele. Um setor de RH poderia ter uma versão focada no impacto da reforma na folha de pagamento.
-
----
+<p align="center">
+  <img src="MockupTAA.png" width="900">
+</p>
 
 ## Como rodar
 
@@ -152,10 +142,10 @@ Para alterar o comportamento do agente sem mexer em código, edite `docs/guardra
 | Categoria | Ferramenta | Por que escolhi |
 |-----------|-----------|----------------|
 | Interface | [Gradio](https://www.gradio.app/) | Streaming nativo, fácil de subir, visual decente sem CSS |
-| LLM | [OpenAI GPT-4o-mini](https://platform.openai.com) | Bom custo-benefício, rápido, contexto suficiente pra base de conhecimento |
+| LLM | [OpenAI GPT](https://platform.openai.com) | Bom custo-benefício, rápido, contexto suficiente pra base de conhecimento |
 | Ambiente | Python + venv | Sem dependência de framework pesado |
 | Config | python-dotenv | Mantém a chave de API fora do código |
-
+| Governança | Guardrails | Permite definir regras de comportamento e reduzir respostas fora do escopo |
 ---
 
 ## Exemplos de perguntas
@@ -179,4 +169,35 @@ Clique nos exemplos dentro do app ou tente estas:
 
 ---
 
+## Aprendizados
+
+Durante o desenvolvimento do TaxAdvisorAI, tive a oportunidade de aplicar na prática conceitos como:
+
+- IA Generativa
+- Engenharia de Prompts
+- Estruturação de Bases de Conhecimento
+- Governança de Agentes
+- Organização de Contexto para LLMs
+- Streaming de Respostas
+
+Um dos principais aprendizados foi compreender que a qualidade de um assistente de IA não depende apenas do modelo utilizado, mas também da forma como o conhecimento, as regras de comportamento e o contexto são organizados.
+
+A separação entre **comportamento (Guardrails)**, **conhecimento (Knowledge Base)** e **lógica da aplicação** tornou o projeto mais organizado, fácil de manter e preparado para futuras evoluções.
+
+Além dos aspectos técnicos, este projeto reforçou minha visão de que a tecnologia tem mais valor quando consegue transformar temas complexos em experiências mais acessíveis, compreensíveis e úteis para as pessoas.
+
+----
+## Possibilidades de Evolução
+
+Embora tenha sido desenvolvido como um projeto educacional, a arquitetura foi pensada para permitir futuras expansões.
+
+Algumas possibilidades incluem:
+
+- Ampliação da base de conhecimento para novos temas tributários;
+- Integração com fontes oficiais para atualização mais frequente das informações;
+- Personalização do comportamento do agente para diferentes perfis de usuários;
+- Implementação de mecanismos de busca semântica para bases de conhecimento maiores;
+- Inclusão de métricas e monitoramento da qualidade das respostas.
+
+  A separação entre comportamento (guardrails), conhecimento (knowledge base) e aplicação foi uma decisão que facilita essas evoluções sem grandes mudanças na estrutura do projeto.
 ## Projeto desenvolvido para o challenge de IA Generativa da [DIO](https://www.dio.me/)
