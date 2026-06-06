@@ -4,7 +4,7 @@
 
 ### O problema que eu queria resolver
 
-Quando a Reforma Tributária foi aprovada em dezembro de 2023, eu ouvi falar bastante sobre isso, mas toda vez que tentava entender de verdade o que mudava, esbarrava no mesmo problema: ou o conteúdo era técnico demais (texto de lei que ninguém lê do início ao fim) ou era superficial demais (manchete que não explica nada).
+Quando a Reforma Tributária foi aprovada em dezembro de 2023, eu ouvi falar bastante sobre isso, mas toda vez que tentava entender de verdade o que mudava, esbarrava no mesmo problema: ou o conteúdo era técnico demais (texto de lei que ninguém lê do início ao fim) ou era superficial demais ( não explicava nada).
 
 Comecei a pensar: tem muita gente na mesma situação. Pequenos empresários que não sabem se vão pagar mais ou menos. Pessoas que ficam ouvindo falar em IBS e CBS sem entender o que é. Estudantes que precisam do tema pra uma prova ou trabalho e não sabem por onde começar.
 
@@ -34,13 +34,13 @@ Pensei principalmente em três públicos: cidadãos comuns curiosos sobre o que 
 
 ### Como ele se comporta
 
-Educativo mas sem ser chato. A ideia é que ele fale como alguém que entende do assunto e consegue explicar de um jeito que qualquer pessoa entende — não como um manual jurídico.
+Educativo mas sem ser chato. A ideia é que ele fale como alguém que entende do assunto e consegue explicar de um jeito que qualquer pessoa entende não como um manual jurídico.
 
 Ele é honesto sobre os limites dele. Quando não sabe, fala que não sabe. Quando o assunto ainda tá sendo regulamentado, avisa em vez de inventar.
 
 ### Exemplos de como ele fala
 
-Numa pergunta básica, ele vai direto ao ponto e usa exemplos práticos. Numa pergunta sobre alíquota que ainda não foi definida, ele não chuta — fala que ainda não tem número oficial e explica o que já se sabe. Se a pergunta estiver fora do escopo, ele redireciona sem ser grosseiro.
+Numa pergunta básica, ele vai direto ao ponto e usa exemplos práticos. Numa pergunta sobre alíquota que ainda não foi definida, ele não chuta, fala que ainda não tem número oficial e explica o que já se sabe. Se a pergunta estiver fora do escopo, ele redireciona sem ser grosseiro.
 
 ---
 
@@ -48,17 +48,25 @@ Numa pergunta básica, ele vai direto ao ponto e usa exemplos práticos. Numa pe
 
 ### Visão geral
 
+## Arquitetura
+
 ```mermaid
 flowchart TD
-    U[Usuário] -->|Mensagem| G[Interface Gradio]
-    G --> A[agent.py]
-    A --> S[System Prompt - identidade]
-    A --> R[docs/guardrails.md - regras]
-    A --> K[docs/knowledge - conteúdo]
-    S & R & K --> P[Prompt completo]
-    P --> O[OpenAI GPT-4o-mini]
-    O -->|Streaming| G
-    G --> U
+    A([Usuário]) --> B[Interface Gradio]
+    B --> C[TaxAdvisorAI Agent]
+
+    subgraph Agent["Camada do Agente"]
+        C --> D[Guardrails<br/>Regras de escopo e segurança]
+        C --> E[Knowledge Base<br/>Conteúdo sobre Reforma Tributária]
+        C --> F[Prompt Orchestration<br/>Combinação de contexto e instruções]
+    end
+
+    D --> G[OpenAI GPT-4o-mini]
+    E --> G
+    F --> G
+
+    G --> H[Resposta em streaming]
+    H --> B
 ```
 
 ### O que cada parte faz
@@ -69,6 +77,7 @@ flowchart TD
 | GPT-4o-mini | Modelo de linguagem | Bom custo-benefício pra um chatbot educativo, rápido nas respostas |
 | `guardrails.md` | Arquivo com as regras do agente | Queria poder ajustar o comportamento sem mexer em código Python |
 | `knowledge/*.md` | Base de conhecimento por tema | Facilita manutenção — cada arquivo é um tema, dá pra atualizar separado |
+| `PromptOrchestration` | Camada que combina identidade, guardrails e conhecimento antes de chamar o modelo | Mantém comportamento, conteúdo e código separados, facilitando manutenção e escalabilidade |
 
 ### Como o prompt é montado
 
