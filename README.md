@@ -1,12 +1,12 @@
 # TaxAdvisorAI 🧾
 
-Chatbot educativo sobre a Reforma Tributária brasileira, desenvolvido com IA Generativa. Explica IBS, CBS, Imposto Seletivo e o período de transição em linguagem simples — sem jargão jurídico, sem invenção de dados.
+Chatbot educativo sobre a Reforma Tributária brasileira, desenvolvido com IA Generativa. Explica IBS, CBS, Imposto Seletivo e o período de transição em linguagem simples.
 
 ---
 
 ## O problema
 
-A Reforma Tributária (EC 132/2023) é a maior mudança no sistema de impostos do Brasil desde a Constituição de 1988. Mas a maioria das pessoas afetadas por ela — pequenos empresários, profissionais autônomos, estudantes — não tem uma forma acessível de entender o que realmente muda.
+A Reforma Tributária (EC 132/2023) é a maior mudança no sistema de impostos do Brasil desde a Constituição de 1988. Mas a maioria das pessoas afetadas por ela, pequenos empresários, profissionais autônomos, estudantes não tem uma forma acessível de entender o que realmente muda.
 
 A informação existe. O problema é que ela está espalhada em texto de lei, em notícias rasas ou em relatórios técnicos que pressupõem formação jurídica ou contábil.
 
@@ -16,7 +16,7 @@ A informação existe. O problema é que ela está espalhada em texto de lei, em
 
 O TaxAdvisorAI é um assistente que responde perguntas sobre a reforma em linguagem acessível, com dois diferenciais claros:
 
-**Guardrails declarados:** o agente tem regras explícitas de comportamento. Quando a alíquota ainda não foi definida em lei, ele diz isso — sem chutar número. Quando a pergunta está fora do escopo, redireciona em vez de tentar responder de qualquer jeito. Essas regras ficam num arquivo de texto separado do código, editável por qualquer pessoa.
+**Guardrails declarados:** o agente tem regras explícitas de comportamento. Quando a alíquota ainda não foi definida em lei, ele diz isso sem chutar número. Quando a pergunta está fora do escopo, redireciona em vez de tentar responder de qualquer jeito. Essas regras ficam num arquivo de texto separado do código, editável por qualquer pessoa.
 
 **Base de conhecimento modular:** o conteúdo sobre a reforma é organizado em arquivos `.md` por tema. Para atualizar o agente conforme novas leis complementares saem, basta editar o arquivo certo. Sem reindexação, sem banco vetorial, sem mexer em código.
 
@@ -34,7 +34,7 @@ O TaxAdvisorAI foi construído como protótipo educativo, mas a arquitetura apon
 | LLM | GPT-4o-mini via API | Roteamento por complexidade da pergunta |
 | Custo | Frações de centavo por conversa | Precificado por volume de consultas |
 
-A ideia central — separar comportamento (guardrails) de conteúdo (knowledge) de código — é o que torna isso escalável. Um escritório de contabilidade poderia ter sua própria base de conhecimento sobre os clientes dele. Um setor de RH poderia ter uma versão focada no impacto da reforma na folha de pagamento.
+A ideia central é separar comportamento (guardrails) de conteúdo (knowledge) de código  é o que torna isso escalável. Um escritório de contabilidade poderia ter sua própria base de conhecimento sobre os clientes dele. Um setor de RH poderia ter uma versão focada no impacto da reforma na folha de pagamento.
 
 ---
 
@@ -98,7 +98,7 @@ TaxAdvisorAI/
 │   └── config.py       # Lê variáveis de ambiente e centraliza configurações
 │
 ├── docs/
-│   ├── guardrails.md               # Regras de escopo e honestidade do agente (editável)
+│   ├── guardrails.md               # Regras de escopo e honestidade do agente 
 │   ├── knowledge/
 │   │   ├── 01-visao-geral.md       # O que é a reforma, por que surgiu
 │   │   ├── 02-novos-tributos.md    # CBS, IBS e Imposto Seletivo em detalhe
@@ -128,9 +128,9 @@ A cada mensagem, o `agent.py` monta o prompt em três camadas:
 3. Conhecimento     → docs/knowledge/*.md (conteúdo sobre a reforma)
 ```
 
-Esse prompt completo vai como system message pra API da OpenAI junto com o histórico da conversa. A resposta chega em streaming — o usuário vê o texto sendo digitado em tempo real.
+Esse prompt completo vai como system message pra API da OpenAI junto com o histórico da conversa. A resposta chega em streaming e o usuário vê o texto sendo digitado em tempo real.
 
-Para alterar o comportamento do agente sem mexer em código, edite `docs/guardrails.md`. Para adicionar um novo tema à base de conhecimento, crie um novo arquivo em `docs/knowledge/` — ele é carregado automaticamente.
+Para alterar o comportamento do agente sem mexer em código, edite `docs/guardrails.md`. Para adicionar um novo tema à base de conhecimento, crie um novo arquivo em `docs/knowledge/`  ele é carregado automaticamente.
 
 ---
 
