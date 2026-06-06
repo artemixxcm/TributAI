@@ -1,149 +1,182 @@
-# 🤖 Agente Financeiro Inteligente com IA Generativa
+# TaxAdvisorAI 🧾
 
-## Contexto
-
-Os assistentes virtuais no setor financeiro estão evoluindo de simples chatbots reativos para **agentes inteligentes e proativos**. Neste desafio, você vai idealizar e prototipar um agente financeiro que utiliza IA Generativa para:
-
-- **Antecipar necessidades** ao invés de apenas responder perguntas
-- **Personalizar** sugestões com base no contexto de cada cliente
-- **Cocriar soluções** financeiras de forma consultiva
-- **Garantir segurança** e confiabilidade nas respostas (anti-alucinação)
-
-> [!TIP]
-> Na pasta [`examples/`](./examples/) você encontra referências de implementação para cada etapa deste desafio.
+Chatbot educativo sobre a Reforma Tributária brasileira, desenvolvido com IA Generativa. Explica IBS, CBS, Imposto Seletivo e o período de transição em linguagem simples — sem jargão jurídico, sem invenção de dados.
 
 ---
 
-## O Que Você Deve Entregar
+## O problema
 
-### 1. Documentação do Agente
+A Reforma Tributária (EC 132/2023) é a maior mudança no sistema de impostos do Brasil desde a Constituição de 1988. Mas a maioria das pessoas afetadas por ela — pequenos empresários, profissionais autônomos, estudantes — não tem uma forma acessível de entender o que realmente muda.
 
-Defina **o que** seu agente faz e **como** ele funciona:
-
-- **Caso de Uso:** Qual problema financeiro ele resolve? (ex: consultoria de investimentos, planejamento de metas, alertas de gastos)
-- **Persona e Tom de Voz:** Como o agente se comporta e se comunica?
-- **Arquitetura:** Fluxo de dados e integração com a base de conhecimento
-- **Segurança:** Como evitar alucinações e garantir respostas confiáveis?
-
-📄 **Template:** [`docs/01-documentacao-agente.md`](./docs/01-documentacao-agente.md)
+A informação existe. O problema é que ela está espalhada em texto de lei, em notícias rasas ou em relatórios técnicos que pressupõem formação jurídica ou contábil.
 
 ---
 
-### 2. Base de Conhecimento
+## A solução
 
-Utilize os **dados mockados** disponíveis na pasta [`data/`](./data/) para alimentar seu agente:
+O TaxAdvisorAI é um assistente que responde perguntas sobre a reforma em linguagem acessível, com dois diferenciais claros:
 
-| Arquivo | Formato | Descrição |
-|---------|---------|-----------|
-| `transacoes.csv` | CSV | Histórico de transações do cliente |
-| `historico_atendimento.csv` | CSV | Histórico de atendimentos anteriores |
-| `perfil_investidor.json` | JSON | Perfil e preferências do cliente |
-| `produtos_financeiros.json` | JSON | Produtos e serviços disponíveis |
+**Guardrails declarados:** o agente tem regras explícitas de comportamento. Quando a alíquota ainda não foi definida em lei, ele diz isso — sem chutar número. Quando a pergunta está fora do escopo, redireciona em vez de tentar responder de qualquer jeito. Essas regras ficam num arquivo de texto separado do código, editável por qualquer pessoa.
 
-Você pode adaptar ou expandir esses dados conforme seu caso de uso.
-
-📄 **Template:** [`docs/02-base-conhecimento.md`](./docs/02-base-conhecimento.md)
+**Base de conhecimento modular:** o conteúdo sobre a reforma é organizado em arquivos `.md` por tema. Para atualizar o agente conforme novas leis complementares saem, basta editar o arquivo certo. Sem reindexação, sem banco vetorial, sem mexer em código.
 
 ---
 
-### 3. Prompts do Agente
+## Visão de produto
 
-Documente os prompts que definem o comportamento do seu agente:
+O TaxAdvisorAI foi construído como protótipo educativo, mas a arquitetura aponta pra um modelo SaaS viável:
 
-- **System Prompt:** Instruções gerais de comportamento e restrições
-- **Exemplos de Interação:** Cenários de uso com entrada e saída esperada
-- **Tratamento de Edge Cases:** Como o agente lida com situações limite
+| Camada | Hoje (protótipo) | Visão SaaS |
+|--------|-----------------|------------|
+| Interface | Gradio local | Web app multi-tenant com auth |
+| Conhecimento | Arquivos `.md` locais | Base por cliente (escritório contábil, empresa, setor) |
+| Guardrails | Arquivo único | Configuração por plano/perfil de uso |
+| LLM | GPT-4o-mini via API | Roteamento por complexidade da pergunta |
+| Custo | Frações de centavo por conversa | Precificado por volume de consultas |
 
-📄 **Template:** [`docs/03-prompts.md`](./docs/03-prompts.md)
-
----
-
-### 4. Aplicação Funcional
-
-Desenvolva um **protótipo funcional** do seu agente:
-
-- Chatbot interativo (sugestão: Streamlit, Gradio ou similar)
-- Integração com LLM (via API ou modelo local)
-- Conexão com a base de conhecimento
-
-📁 **Pasta:** [`src/`](./src/)
+A ideia central — separar comportamento (guardrails) de conteúdo (knowledge) de código — é o que torna isso escalável. Um escritório de contabilidade poderia ter sua própria base de conhecimento sobre os clientes dele. Um setor de RH poderia ter uma versão focada no impacto da reforma na folha de pagamento.
 
 ---
 
-### 5. Avaliação e Métricas
+## Como rodar
 
-Descreva como você avalia a qualidade do seu agente:
+### Pré-requisitos
 
-**Métricas Sugeridas:**
-- Precisão/assertividade das respostas
-- Taxa de respostas seguras (sem alucinações)
-- Coerência com o perfil do cliente
+- Python 3.11+
+- Uma chave de API da OpenAI ([platform.openai.com](https://platform.openai.com))
 
-📄 **Template:** [`docs/04-metricas.md`](./docs/04-metricas.md)
+### Instalação
 
----
+```bash
+# 1. Clone o repositório
+git clone https://github.com/artemixxcm/TributAI.git
+cd TributAI
 
-### 6. Pitch
+# 2. Crie e ative o ambiente virtual
+python -m venv .venv
 
-Grave um **pitch de 3 minutos** (estilo elevador) apresentando:
+# Windows
+.\.venv\Scripts\Activate.ps1
 
-- Qual problema seu agente resolve?
-- Como ele funciona na prática?
-- Por que essa solução é inovadora?
+# Mac/Linux
+source .venv/bin/activate
 
-📄 **Template:** [`docs/05-pitch.md`](./docs/05-pitch.md)
+# 3. Instale as dependências
+pip install -r requirements.txt
 
----
+# 4. Configure a chave de API
+# Crie o arquivo src/.env com o conteúdo abaixo:
+# OPENAI_API_KEY=sua-chave-aqui
 
-## Ferramentas Sugeridas
+# 5. Rode a aplicação
+python src/app.py
+```
 
-Todas as ferramentas abaixo possuem versões gratuitas:
+Acesse em **http://localhost:7860**
 
-| Categoria | Ferramentas |
-|-----------|-------------|
-| **LLMs** | [ChatGPT](https://chat.openai.com/), [Copilot](https://copilot.microsoft.com/), [Gemini](https://gemini.google.com/), [Claude](https://claude.ai/), [Ollama](https://ollama.ai/) |
-| **Desenvolvimento** | [Streamlit](https://streamlit.io/), [Gradio](https://www.gradio.app/), [Google Colab](https://colab.research.google.com/) |
-| **Orquestração** | [LangChain](https://www.langchain.com/), [LangFlow](https://www.langflow.org/), [CrewAI](https://www.crewai.com/) |
-| **Diagramas** | [Mermaid](https://mermaid.js.org/), [Draw.io](https://app.diagrams.net/), [Excalidraw](https://excalidraw.com/) |
+### Variáveis de ambiente opcionais
 
----
-
-## Estrutura do Repositório
+Você pode ajustar o comportamento do modelo criando essas variáveis no `src/.env`:
 
 ```
-📁 lab-agente-financeiro/
-│
-├── 📄 README.md
-│
-├── 📁 data/                          # Dados mockados para o agente
-│   ├── historico_atendimento.csv     # Histórico de atendimentos (CSV)
-│   ├── perfil_investidor.json        # Perfil do cliente (JSON)
-│   ├── produtos_financeiros.json     # Produtos disponíveis (JSON)
-│   └── transacoes.csv                # Histórico de transações (CSV)
-│
-├── 📁 docs/                          # Documentação do projeto
-│   ├── 01-documentacao-agente.md     # Caso de uso e arquitetura
-│   ├── 02-base-conhecimento.md       # Estratégia de dados
-│   ├── 03-prompts.md                 # Engenharia de prompts
-│   ├── 04-metricas.md                # Avaliação e métricas
-│   └── 05-pitch.md                   # Roteiro do pitch
-│
-├── 📁 src/                           # Código da aplicação
-│   └── app.py                        # (exemplo de estrutura)
-│
-├── 📁 assets/                        # Imagens e diagramas
-│   └── ...
-│
-└── 📁 examples/                      # Referências e exemplos
-    └── README.md
+OPENAI_API_KEY=sua-chave        # obrigatório
+MODELO=gpt-4o-mini              # padrão: gpt-4o-mini
+TEMPERATURA=0.3                 # padrão: 0.3 (mais conservador)
+MAX_TOKENS=1200                 # padrão: 1200
 ```
 
 ---
 
-## Dicas Finais
+## Estrutura do projeto
 
-1. **Comece pelo prompt:** Um bom system prompt é a base de um agente eficaz
-2. **Use os dados mockados:** Eles garantem consistência e evitam problemas com dados sensíveis
-3. **Foque na segurança:** No setor financeiro, evitar alucinações é crítico
-4. **Teste cenários reais:** Simule perguntas que um cliente faria de verdade
-5. **Seja direto no pitch:** 3 minutos passam rápido, vá ao ponto
+```
+TaxAdvisorAI/
+│
+├── src/
+│   ├── app.py          # Interface Gradio — monta o chat e conecta ao agente
+│   ├── agent.py        # Lógica do agente — carrega guardrails, conhecimento e chama a API
+│   └── config.py       # Lê variáveis de ambiente e centraliza configurações
+│
+├── docs/
+│   ├── guardrails.md               # Regras de escopo e honestidade do agente (editável)
+│   ├── knowledge/
+│   │   ├── 01-visao-geral.md       # O que é a reforma, por que surgiu
+│   │   ├── 02-novos-tributos.md    # CBS, IBS e Imposto Seletivo em detalhe
+│   │   ├── 03-transicao.md         # Cronograma 2026–2033 e Simples Nacional
+│   │   └── 04-impactos.md          # Impactos por setor e o que ainda está em aberto
+│   │
+│   ├── 01-documentacao-agente.md   # Caso de uso, arquitetura e decisões de projeto
+│   ├── 02-base-conhecimento.md     # Como a base funciona e como expandir
+│   ├── 03-prompts.md               # System prompt, guardrails e exemplos de interação
+│   ├── 04-metricas.md              # Cenários de teste e critérios de avaliação
+│   └── 05-pitch.md                 # Roteiro do pitch de 3 minutos
+│
+├── requirements.txt
+├── .gitignore
+└── README.md
+```
+
+---
+
+## Como o agente funciona
+
+A cada mensagem, o `agent.py` monta o prompt em três camadas:
+
+```
+1. Identidade       → quem é o TaxAdvisorAI (fixo no código)
+2. Guardrails       → docs/guardrails.md (escopo, honestidade, tom)
+3. Conhecimento     → docs/knowledge/*.md (conteúdo sobre a reforma)
+```
+
+Esse prompt completo vai como system message pra API da OpenAI junto com o histórico da conversa. A resposta chega em streaming — o usuário vê o texto sendo digitado em tempo real.
+
+Para alterar o comportamento do agente sem mexer em código, edite `docs/guardrails.md`. Para adicionar um novo tema à base de conhecimento, crie um novo arquivo em `docs/knowledge/` — ele é carregado automaticamente.
+
+---
+
+## Documentação
+
+| Documento | O que tem |
+|-----------|-----------|
+| [Documentação do agente](docs/01-documentacao-agente.md) | Problema, solução, arquitetura e limitações |
+| [Base de conhecimento](docs/02-base-conhecimento.md) | Como o RAG simples funciona e como expandir |
+| [Prompts](docs/03-prompts.md) | System prompt, guardrails e exemplos reais de interação |
+| [Métricas](docs/04-metricas.md) | Cenários de teste prontos pra rodar |
+| [Pitch](docs/05-pitch.md) | Roteiro de 3 minutos com sugestões de slides |
+| [Guardrails](docs/guardrails.md) | Regras de escopo e honestidade (arquivo editável) |
+
+---
+
+## Ferramentas utilizadas
+
+| Categoria | Ferramenta | Por que escolhi |
+|-----------|-----------|----------------|
+| Interface | [Gradio](https://www.gradio.app/) | Streaming nativo, fácil de subir, visual decente sem CSS |
+| LLM | [OpenAI GPT-4o-mini](https://platform.openai.com) | Bom custo-benefício, rápido, contexto suficiente pra base de conhecimento |
+| Ambiente | Python + venv | Sem dependência de framework pesado |
+| Config | python-dotenv | Mantém a chave de API fora do código |
+
+---
+
+## Exemplos de perguntas
+
+Clique nos exemplos dentro do app ou tente estas:
+
+- *"O que é a Reforma Tributária em poucas palavras?"*
+- *"Qual a diferença entre IBS e CBS?"*
+- *"Quais impostos vão deixar de existir?"*
+- *"O que é o Imposto Seletivo?"*
+- *"Como vai funcionar o período de transição?"*
+- *"O que muda pra quem tem uma pequena empresa?"*
+
+---
+
+## Limitações
+
+- O agente não tem acesso à internet em tempo real. O conhecimento vem dos arquivos em `docs/knowledge/`, que precisam ser atualizados manualmente conforme novas leis complementares são publicadas.
+- Não substitui orientação de contador ou advogado. Para decisões concretas de negócio, sempre recomenda consultar um profissional.
+- A alíquota exata do IBS+CBS ainda não foi definida em lei complementar. O agente informa isso quando perguntado, sem inventar número.
+
+---
+
+## Projeto desenvolvido para o challenge de IA Generativa da [DIO](https://www.dio.me/)

@@ -1,31 +1,34 @@
-# Código da Aplicação
+# src/
 
-Esta pasta contém o código do seu agente financeiro.
+Código da aplicação TaxAdvisorAI.
 
-## Estrutura Sugerida
+| Arquivo | O que faz |
+|---------|-----------|
+| `app.py` | Monta a interface Gradio e conecta ao agente |
+| `agent.py` | Carrega guardrails e base de conhecimento, chama a API da OpenAI |
+| `config.py` | Lê o `.env` e centraliza as configurações do modelo |
 
-```
-src/
-├── app.py              # Aplicação principal (Streamlit/Gradio)
-├── agente.py           # Lógica do agente
-├── config.py           # Configurações (API keys, etc.)
-└── requirements.txt    # Dependências
-```
-
-## Exemplo de requirements.txt
-
-```
-streamlit
-openai
-python-dotenv
-```
-
-## Como Rodar
+## Como rodar
 
 ```bash
-# Instalar dependências
-pip install -r requirements.txt
+# A partir da raiz do projeto, com o .venv ativado:
+python src/app.py
+```
 
-# Rodar a aplicação
-streamlit run app.py
+Acesse em http://localhost:7860
+
+## Variáveis de ambiente
+
+Crie um arquivo `.env` dentro desta pasta (`src/.env`) com:
+
+```
+OPENAI_API_KEY=sua-chave-aqui
+```
+
+Opcionais:
+
+```
+MODELO=gpt-4o-mini
+TEMPERATURA=0.3
+MAX_TOKENS=1200
 ```
