@@ -1,39 +1,32 @@
 # Base de Conhecimento — TaxAdvisorAI
 
-## Estratégia adotada
+## Como eu pensei nisso
 
-A base de conhecimento do TaxAdvisorAI usa uma abordagem chamada **RAG simples por injeção de contexto**: os arquivos com o conteúdo sobre a reforma são carregados e inseridos diretamente no system prompt a cada conversa.
+Quando fui montar a base de conhecimento, a primeira ideia foi usar algum sistema de busca vetorial tipo FAISS ou ChromaDB. Mas aí percebi que, pra esse projeto, seria complexidade desnecessária: a base de conhecimento sobre a reforma tributária não é tão grande assim, e o GPT-4o-mini aguenta receber o conteúdo completo no contexto sem problema.
 
-Não há banco vetorial nem embeddings — o modelo recebe o conteúdo completo como contexto. Isso funciona bem porque:
-- A base cabe confortavelmente no contexto do GPT-4o-mini (bem abaixo do limite de tokens)
-- É fácil de manter: basta editar os arquivos `.md`, sem precisar reindexar nada
-- Garante que o agente use o conteúdo como fonte prioritária nas respostas
+Então optei por uma abordagem bem mais simples: carregar todos os arquivos `.md` da pasta `docs/knowledge/` e injetar tudo direto no system prompt. Sem banco vetorial, sem embeddings, sem servidor rodando em paralelo. Funciona, é fácil de manter e qualquer pessoa consegue editar o conteúdo sem precisar entender de IA.
 
 ---
 
-## Estrutura dos arquivos
+## O que tem na base
 
-Os arquivos ficam em `docs/knowledge/` e são carregados em ordem alfabética pelo nome do arquivo:
+Dividi o conteúdo em quatro arquivos, cada um com um tema específico:
 
-| Arquivo | Conteúdo |
-|---------|---------|
-| `01-visao-geral.md` | O que é a Reforma Tributária, por que ela foi necessária, o que muda na estrutura (EC 132/2023) |
-| `02-novos-tributos.md` | CBS, IBS e Imposto Seletivo em detalhe: quem arrecada, o que substitui, cronograma |
-| `03-transicao.md` | Cronograma completo 2026–2033, Simples Nacional, fundos criados |
-| `04-impactos.md` | Impactos para consumidores, empresas e setores com regime diferenciado; o que ainda está em aberto |
+**`01-visao-geral.md`** — começa pelo começo: o que é a reforma, por que ela foi necessária, o que muda na estrutura geral. É o arquivo que responde "mas afinal, o que é isso?"
+
+**`02-novos-tributos.md`** — entra nos detalhes de CBS, IBS e Imposto Seletivo. Quem arrecada cada um, o que substitui, como funciona o crédito. A parte mais técnica da base.
+
+**`03-transicao.md`** — o cronograma de 2026 a 2033, como funciona a coexistência dos sistemas antigo e novo, e o que acontece com o Simples Nacional.
+
+**`04-impactos.md`** — o que muda na prática pra consumidores, empresas e setores específicos. Também lista o que ainda não foi regulamentado — importante pra o agente não inventar respostas sobre esses pontos.
 
 ---
 
-## Como os dados são carregados
+## Como o carregamento funciona
 
-O arquivo `src/agent.py` contém a função `_carregar_base_conhecimento()`, que:
-1. Busca todos os arquivos `.md` dentro de `docs/knowledge/`
-2. Ordena por nome (para garantir a sequência lógica)
-3. Concatena o conteúdo separado por `---`
-4. Injeta tudo na seção "Base de conhecimento" do system prompt
+O `agent.py` tem uma função que faz isso automaticamente:
 
 ```python
-# Trecho simplificado do agent.py
 def _carregar_base_conhecimento() -> str:
     pasta = RAIZ / "docs" / "knowledge"
     arquivos = sorted(pasta.glob("*.md"))
@@ -41,64 +34,20 @@ def _carregar_base_conhecimento() -> str:
     return "\n\n---\n\n".join(partes)
 ```
 
----
-
-## Como os dados são usados no prompt
-
-O system prompt final tem três camadas:
-
-```
-[Identidade do agente]
-    → Quem é o TaxAdvisorAI e o que ele faz
-
-[Guardrails — docs/guardrails.md]
-    → Regras de escopo, frases de honestidade, o que não pode fazer
-
-[Base de conhecimento — docs/knowledge/*.md]
-    → Conteúdo sobre a reforma, usado como fonte prioritária
-```
-
-A instrução para o modelo é: use a base de conhecimento como fonte principal. Se a pergunta não for coberta por ela, diga isso antes de responder com conhecimento geral.
+Ela busca todos os `.md` dentro da pasta, ordena pelo nome do arquivo (por isso usei numeração no começo — `01-`, `02-`...) e junta tudo num bloco só separado por `---`. Esse bloco vai pro system prompt quando o agente é iniciado.
 
 ---
 
-## Exemplo de contexto montado
+## Por que separei em arquivos ao invés de um só
 
-```
-# Base de conhecimento
+Poderia ter colocado tudo num arquivo enorme. Mas ficou mais fácil de manter assim: se sair uma nova lei complementar sobre a transição, eu sei exatamente onde editar (`03-transicao.md`). Se quiser adicionar um novo tema, crio um `05-setor-servicos.md` e ele é carregado automaticamente na próxima vez que o app subir.
 
-Use as informações abaixo como fonte principal. Se a pergunta não for
-coberta por elas, diga isso claramente antes de responder com conhecimento geral.
-
-# Visão Geral da Reforma Tributária
-
-## O que é
-A Reforma Tributária do consumo foi aprovada pela Emenda Constitucional nº 132,
-promulgada em 20 de dezembro de 2023...
+Não precisa mexer em nenhuma linha de código pra isso.
 
 ---
 
-# Os Novos Tributos: CBS, IBS e Imposto Seletivo
+## Limitação que vale mencionar
 
-## CBS — Contribuição sobre Bens e Serviços
-- Esfera: federal (substitui PIS e COFINS)
-...
-```
+O conteúdo foi escrito com base na EC 132/2023 e no que estava regulamentado até o momento em que o projeto foi feito. A Reforma Tributária ainda tem vários pontos sendo definidos por leis complementares — então partes da base podem ficar desatualizadas conforme o processo avança. Manter os arquivos atualizados faz parte da manutenção do projeto.
 
----
-
-## Como expandir a base
-
-Para adicionar um novo tema (ex.: impacto no setor de saúde), basta criar um novo arquivo:
-
-```
-docs/knowledge/05-setor-saude.md
-```
-
-Na próxima vez que o agente for iniciado, o arquivo é carregado automaticamente. Sem precisar mexer em nenhuma linha de código.
-
----
-
-## Limitação importante
-
-O conteúdo da base reflete o estado da legislação no momento em que os arquivos foram escritos. Como a Reforma Tributária ainda está sendo regulamentada por leis complementares, **alguns pontos ficam desatualizados conforme novas regras são publicadas**. Manter os arquivos de `knowledge/` atualizados é parte da manutenção do projeto.
+Por isso o `04-impactos.md` tem uma seção específica sobre "o que ainda está em aberto" — o agente é instruído a usar essa informação em vez de inventar algo que ainda não existe.
